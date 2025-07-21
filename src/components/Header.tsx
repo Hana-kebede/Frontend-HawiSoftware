@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -8,9 +14,17 @@ const Header = () => {
   const navItems = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
+    { label: "Products", href: "#products" },
     { label: "Process", href: "#process" },
+    { label: "Reviews", href: "#reviews" },
     { label: "Contact", href: "#contact" },
+  ];
+
+  const serviceItems = [
+    { label: "Brand Identity Development", href: "#brand-identity" },
+    { label: "Web Design & Development", href: "#web-development" },
+    { label: "Custom Software Development", href: "#software-development" },
+    { label: "Mobile Application Development", href: "#mobile-development" },
   ];
 
   return (
@@ -36,6 +50,24 @@ const Header = () => {
                 {item.label}
               </a>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground smooth-transition">
+                Services
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="glass-card border-border/50 bg-background/95 backdrop-blur-sm z-50">
+                {serviceItems.map((service) => (
+                  <DropdownMenuItem key={service.label} asChild>
+                    <a
+                      href={service.href}
+                      className="cursor-pointer hover:bg-primary/10 smooth-transition"
+                    >
+                      {service.label}
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* CTA Button */}

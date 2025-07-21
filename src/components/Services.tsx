@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { 
   Palette, 
   Code2, 
@@ -10,14 +11,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import ServiceModal from "./ServiceModal";
 
 const Services = () => {
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLearnMore = (service: any) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
   const services = [
     {
       icon: Palette,
       title: "Brand Identity Development",
       description: "Creating compelling brand identities that resonate with your target audience and stand out in the marketplace.",
-      features: ["Logo Design", "Brand Guidelines", "Visual Identity", "Marketing Materials"],
+      detailedDescription: "Our comprehensive brand identity development service creates a cohesive visual language that tells your story and connects with your audience. We combine strategic thinking with creative excellence to build brands that stand the test of time and drive business growth.",
+      features: ["Logo Design & Variations", "Brand Guidelines & Standards", "Visual Identity System", "Marketing Material Design", "Business Card & Stationery", "Digital Asset Creation"],
+      benefits: ["Increased Brand Recognition", "Professional Market Presence", "Consistent Brand Experience", "Competitive Advantage", "Enhanced Customer Trust", "Scalable Brand Assets"],
+      price: "Starting at $1,500",
+      duration: "2-4 weeks",
+      technologies: ["Adobe Creative Suite", "Figma", "Sketch", "InVision", "Canva Pro"],
       color: "text-red-400",
       bgColor: "bg-red-500/10",
       popular: false
@@ -26,7 +41,12 @@ const Services = () => {
       icon: Code2,
       title: "Web Design & Development",
       description: "Building responsive, fast, and user-friendly websites that convert visitors into customers.",
-      features: ["Responsive Design", "E-commerce", "CMS Integration", "SEO Optimization"],
+      detailedDescription: "We create modern, responsive websites that not only look stunning but also perform exceptionally well. Our development process focuses on user experience, performance optimization, and scalability to ensure your website grows with your business and delivers measurable results.",
+      features: ["Responsive Web Design", "E-commerce Solutions", "CMS Integration", "SEO Optimization", "Performance Optimization", "Security Implementation"],
+      benefits: ["Increased Online Visibility", "Higher Conversion Rates", "Mobile-First Experience", "Fast Loading Times", "Search Engine Friendly", "Easy Content Management"],
+      price: "Starting at $2,500",
+      duration: "3-6 weeks",
+      technologies: ["React", "Next.js", "TypeScript", "Node.js", "WordPress", "Shopify"],
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
       popular: true
@@ -35,7 +55,12 @@ const Services = () => {
       icon: Settings,
       title: "Custom Software Development",
       description: "Developing tailored software solutions that streamline your business processes and boost productivity.",
-      features: ["Custom Applications", "API Development", "Database Design", "System Integration"],
+      detailedDescription: "Our custom software development service transforms your unique business requirements into powerful, scalable solutions. We build software that automates processes, improves efficiency, and gives you a competitive edge in your industry.",
+      features: ["Custom Web Applications", "API Development & Integration", "Database Design & Optimization", "System Integration", "Cloud Solutions", "Maintenance & Support"],
+      benefits: ["Automated Business Processes", "Improved Efficiency", "Reduced Operational Costs", "Scalable Architecture", "Data-Driven Insights", "Competitive Advantage"],
+      price: "Starting at $5,000",
+      duration: "6-12 weeks",
+      technologies: ["Python", "JavaScript", "React", "Node.js", "PostgreSQL", "AWS"],
       color: "text-green-400",
       bgColor: "bg-green-500/10",
       popular: false
@@ -44,7 +69,12 @@ const Services = () => {
       icon: Smartphone,
       title: "Mobile Application Development",
       description: "Creating intuitive mobile apps for iOS and Android that engage users and drive business growth.",
-      features: ["iOS & Android", "Cross-platform", "UI/UX Design", "App Store Publishing"],
+      detailedDescription: "We develop high-performance mobile applications that provide exceptional user experiences across iOS and Android platforms. Our apps are designed to engage users, drive business growth, and leverage the latest mobile technologies for optimal performance.",
+      features: ["Native iOS & Android Apps", "Cross-platform Development", "UI/UX Design", "App Store Publishing", "Push Notifications", "Analytics Integration"],
+      benefits: ["Wider Market Reach", "Enhanced User Engagement", "Offline Functionality", "Push Notification Marketing", "App Store Visibility", "Mobile-First Customer Experience"],
+      price: "Starting at $8,000",
+      duration: "8-16 weeks",
+      technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Firebase", "Redux"],
       color: "text-purple-400",
       bgColor: "bg-purple-500/10",
       popular: false
@@ -123,6 +153,7 @@ const Services = () => {
                 <Button 
                   variant="outline" 
                   className="w-full group glass-card border-border/50 hover:border-primary/50 hover:bg-primary/5 py-6"
+                  onClick={() => handleLearnMore(service)}
                 >
                   Learn More
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -160,6 +191,12 @@ const Services = () => {
           </Card>
         </div>
       </div>
+
+      <ServiceModal
+        service={selectedService}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };

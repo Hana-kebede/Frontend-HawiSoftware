@@ -230,13 +230,24 @@ const Contact = () => {
               </CardContent>
             </Card>
 
-            {/* Map placeholder */}
+            {/* Google Map */}
             <Card className="glass-card overflow-hidden">
-              <div className="w-full h-64 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                  <h4 className="font-semibold text-lg">Our Location</h4>
-                  <p className="text-muted-foreground">Adama, Ethiopia</p>
+              <div className="w-full h-64 relative">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31524.924736554247!2d39.26884445000001!3d8.540555449999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b0b2b8d5d0c05%3A0x5c5c5c5c5c5c5c5c!2sAdama%2C%20Ethiopia!5e0!3m2!1sen!2sus!4v1635789123456!5m2!1sen!2sus"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="grayscale hover:grayscale-0 transition-all duration-300"
+                ></iframe>
+                <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-2 rounded-lg border border-border/50">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Adama, Ethiopia</span>
+                  </div>
                 </div>
               </div>
             </Card>

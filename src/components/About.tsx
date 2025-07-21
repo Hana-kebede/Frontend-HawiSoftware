@@ -21,9 +21,11 @@ const About = () => {
 
   const achievements = [
     "50+ Successful Projects Delivered",
-    "25+ Satisfied Clients Worldwide",
-    "3+ Years of Industry Experience",
+    "25+ Satisfied Clients Worldwide", 
+    "5+ Years of Industry Experience",
     "100% Client Satisfaction Rate",
+    "Expert Team of Developers",
+    "24/7 Technical Support",
   ];
 
   return (
@@ -40,9 +42,10 @@ const About = () => {
               Who <span className="gradient-text">We Are</span>
             </h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              At Hawi Software Solutions, we are a passionate team of developers, designers, and innovators 
-              committed to transforming your digital vision into reality. With years of experience in the 
-              industry, we specialize in creating cutting-edge solutions that drive business growth.
+              Hawi Software Solutions is a leading software development company dedicated to making a better future 
+              through innovative technology. We specialize in brand identity development, web design and development, 
+              custom software solutions, and mobile application development. Our mission is to help businesses 
+              transform their ideas into powerful digital solutions that drive growth and success.
             </p>
             
             <div className="space-y-4 mb-8">
