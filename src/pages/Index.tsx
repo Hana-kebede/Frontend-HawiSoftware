@@ -8,6 +8,7 @@ import Reviews from "@/components/Reviews";
 import Partners from "@/components/Partners";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import HelpCenter from "@/components/HelpCenter";
 
 const Index = () => {
   return (
@@ -24,6 +25,7 @@ const Index = () => {
       <Contact />
       </main>
       <Footer />
+      <HelpCenter />
     </div>
   );
 };

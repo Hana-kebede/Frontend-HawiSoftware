@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ const Header = () => {
     { label: "Products", href: "#products" },
     { label: "Process", href: "#process" },
     { label: "Reviews", href: "#reviews" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "#contact" },
   ];
 
@@ -72,8 +74,8 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button variant="default" className="hero-glow">
-              Get Started
+            <Button variant="default" className="hero-glow" asChild>
+              <Link to="/login">Get Started</Link>
             </Button>
           </div>
 
