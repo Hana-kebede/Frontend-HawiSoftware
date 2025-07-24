@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Building, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { UserContext } from "@/App";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +22,7 @@ const Signup = () => {
     subscribeNewsletter: false
   });
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -38,8 +40,15 @@ const Signup = () => {
       alert("Please agree to the terms and conditions!");
       return;
     }
-    // For demo purposes, redirect to dashboard
-    navigate("/dashboard");
+    const role = formData.email === 'admin@hawi.com' ? 'admin' : 'user';
+    setUser({ email: formData.email, role, profilePic: undefined });
+    navigate(role === 'admin' ? '/admin' : '/dashboard');
+  };
+
+  const handleSocialSignup = (provider: 'google' | 'facebook') => {
+    // In handleSocialSignup, open Google or Facebook public homepage in a new tab
+    const url = provider === 'google' ? 'https://www.google.com/' : 'https://www.facebook.com/';
+    window.open(url, '_blank');
   };
 
   return (
@@ -54,12 +63,8 @@ const Signup = () => {
       <div className="relative w-full max-w-lg mx-4">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
-          <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center font-bold text-primary-foreground text-2xl shadow-lg">
-              H
-            </div>
-            <span className="text-2xl font-bold">Hawi Software</span>
-          </Link>
+          <img src="https://www.hawisoftware.com/wp-content/uploads/2021/08/logohawi.png" alt="Hawi Software Logo" className="w-16 h-16 mx-auto mb-2" />
+          <span className="text-2xl font-bold">Hawi Software</span>
         </div>
 
         <Card className="glass-card shadow-2xl animate-scale-in">
@@ -238,7 +243,7 @@ const Signup = () => {
 
             {/* Social Signup */}
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="h-12 hover-scale">
+              <Button variant="outline" className="h-12 hover-scale" onClick={() => handleSocialSignup('google')}>
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -259,7 +264,7 @@ const Signup = () => {
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" className="h-12 hover-scale">
+              <Button variant="outline" className="h-12 hover-scale" onClick={() => handleSocialSignup('facebook')}>
                 <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                   <path
                     fillRule="evenodd"

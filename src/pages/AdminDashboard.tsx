@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Users,
@@ -49,10 +49,45 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useContext } from "react";
+import { UserContext } from "@/App";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
+
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
+  const [userAction, setUserAction] = useState({ open: false, type: '', user: null });
+  const [addProjectOpen, setAddProjectOpen] = useState(false);
+  const [projectAction, setProjectAction] = useState({ open: false, type: '', project: null });
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [requestAction, setRequestAction] = useState({ open: false, type: '', request: null });
+  const [messagesOpen, setMessagesOpen] = useState(false);
+  const [blogAction, setBlogAction] = useState({ open: false, type: '', post: null });
+  const [addPostOpen, setAddPostOpen] = useState(false);
+  const [adminProfileOpen, setAdminProfileOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, message: "New user registered", time: "1 hour ago", type: "info" },
+    { id: 2, message: "Project deadline approaching", time: "3 hours ago", type: "warning" },
+    { id: 3, message: "Service request approved", time: "Today", type: "success" }
+  ]);
+  const { user, setUser } = useContext(UserContext);
+  const [adminProfilePic, setAdminProfilePic] = useState(user?.profilePic || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face");
+  const [adminProfileEdit, setAdminProfileEdit] = useState(false);
+  const [adminProfileData, setAdminProfileData] = useState({
+    name: "Admin",
+    email: "admin@hawisoftware.com",
+    role: "System Administrator"
+  });
+
+  // When adminProfilePic changes, update context
+  useEffect(() => {
+    setUser(prev => prev ? { ...prev, profilePic: adminProfilePic } : prev);
+  }, [adminProfilePic]);
 
   const handleLogout = () => {
     console.log("Admin logged out");
@@ -190,22 +225,20 @@ const AdminDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground text-sm">
-                  H
-                </div>
+                <img src="https://www.hawisoftware.com/wp-content/uploads/2021/08/logohawi.png" alt="Hawi Software Logo" className="w-8 h-8 object-contain" />
                 <span className="font-bold text-lg">Hawi Software</span>
               </Link>
               <Badge variant="secondary">Admin Dashboard</Badge>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative" onClick={() => setNotificationOpen(true)}>
                 <Bell className="h-5 w-5" />
                 <Badge className="absolute -top-1 -right-1 w-4 h-4 rounded-full p-0 flex items-center justify-center text-xs">
-                  5
+                  {notifications.length}
                 </Badge>
               </Button>
-              <Avatar>
-                <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" />
+              <Avatar onClick={() => setAdminProfileOpen(true)} className="cursor-pointer">
+                <AvatarImage src={user?.profilePic || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"} />
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <AlertDialog>
@@ -240,14 +273,13 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="requests">Requests</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="blog">Blog</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -369,9 +401,9 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input placeholder="Search users..." className="pl-10 w-64" />
+                  <Input placeholder="Search users..." className="pl-10 w-64" value={userSearch} onChange={e => setUserSearch(e.target.value)} />
                 </div>
-                <Button className="hero-glow">
+                <Button className="hero-glow" onClick={() => setAddUserOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add User
                 </Button>
@@ -393,7 +425,7 @@ const AdminDashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user) => (
+                    {users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())).map((user) => (
                       <TableRow key={user.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -421,15 +453,35 @@ const AdminDashboard = () => {
                         <TableCell>{user.joined}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setUserAction({ open: true, type: 'view', user })}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setUserAction({ open: true, type: 'edit', user })}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => setUserAction({ open: false, type: '', user: null })}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure you want to delete <b>{user.name}</b>?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => {
+                                    // Simulate deletion
+                                    console.log("Simulating deletion for user:", user);
+                                    setUserAction({ ...userAction, open: false });
+                                  }}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -444,7 +496,7 @@ const AdminDashboard = () => {
           <TabsContent value="projects" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Project Management</h2>
-              <Button className="hero-glow">
+              <Button className="hero-glow" onClick={() => setAddProjectOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -463,14 +515,38 @@ const AdminDashboard = () => {
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => setProjectAction({ open: true, type: 'view', project })}>
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => setProjectAction({ open: true, type: 'edit', project })}>
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" onClick={() => setProjectAction({ open: false, type: '', project: null })}>
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure you want to delete <b>{project.name}</b>?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => {
+                                // Simulate deletion
+                                console.log("Simulating deletion for project:", project);
+                                setProjectAction({ ...projectAction, open: false });
+                              }}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                     
@@ -509,7 +585,7 @@ const AdminDashboard = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Service Requests</h2>
               <div className="flex items-center gap-4">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setFilterOpen(true)}>
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
@@ -547,15 +623,35 @@ const AdminDashboard = () => {
                         <TableCell>{request.date}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setRequestAction({ open: true, type: 'view', request })}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setRequestAction({ open: true, type: 'edit', request })}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => setRequestAction({ open: false, type: '', request: null })}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure you want to delete <b>{request.title}</b>?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => {
+                                    // Simulate deletion
+                                    console.log("Simulating deletion for request:", request);
+                                    setRequestAction({ ...requestAction, open: false });
+                                  }}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -577,7 +673,7 @@ const AdminDashboard = () => {
                   <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-lg font-medium mb-2">No recent messages</p>
                   <p className="text-muted-foreground mb-4">Client messages and communications will appear here.</p>
-                  <Button className="hero-glow">View All Messages</Button>
+                  <Button className="hero-glow" onClick={() => setMessagesOpen(true)}>View All Messages</Button>
                 </div>
               </CardContent>
             </Card>
@@ -587,7 +683,7 @@ const AdminDashboard = () => {
           <TabsContent value="blog" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Blog Management</h2>
-              <Button className="hero-glow">
+              <Button className="hero-glow" onClick={() => setAddPostOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Post
               </Button>
@@ -624,15 +720,35 @@ const AdminDashboard = () => {
                         <TableCell>{post.date}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setBlogAction({ open: true, type: 'view', post })}>
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" onClick={() => setBlogAction({ open: true, type: 'edit', post })}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => setBlogAction({ open: false, type: '', post: null })}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure you want to delete <b>{post.title}</b>?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => {
+                                    // Simulate deletion
+                                    console.log("Simulating deletion for post:", post);
+                                    setBlogAction({ ...blogAction, open: false });
+                                  }}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -644,89 +760,308 @@ const AdminDashboard = () => {
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <h2 className="text-2xl font-bold">Analytics & Reporting</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Revenue Analytics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">This Month</span>
-                      <span className="font-semibold">$42,500</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Last Month</span>
-                      <span className="font-semibold">$39,200</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Growth</span>
-                      <span className="font-semibold text-green-600">+8.4%</span>
-                    </div>
-                    <Progress value={84} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Client Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Active Clients</span>
-                      <span className="font-semibold">84</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">New This Month</span>
-                      <span className="font-semibold">12</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Retention Rate</span>
-                      <span className="font-semibold">94%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Project Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">On-time Delivery</span>
-                      <span className="font-semibold">89%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Budget Adherence</span>
-                      <span className="font-semibold">92%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Client Satisfaction</span>
-                      <span className="font-semibold">4.8/5</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+          {/* Removed Analytics Tab */}
         </Tabs>
       </div>
+
+      {/* Notification Modal */}
+      <Dialog open={notificationOpen} onOpenChange={setNotificationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Notifications</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <p className="text-muted-foreground">No notifications.</p>
+            ) : notifications.map((notification) => (
+              <div key={notification.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className={`w-2 h-2 rounded-full mt-2 ${
+                  notification.type === "success" ? "bg-green-500" :
+                  notification.type === "warning" ? "bg-yellow-500" : "bg-blue-500"
+                }`} />
+                <div className="flex-1">
+                  <p className="text-sm">{notification.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                    </div>
+                    </div>
+            ))}
+                    </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Modal */}
+      <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4">
+            <Input placeholder="Full Name" required />
+            <Input placeholder="Email" type="email" required />
+            <Input placeholder="Company" />
+            <Input placeholder="Role" />
+            <DialogFooter>
+              <Button type="submit">Add User</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Action Modal */}
+      <Dialog open={userAction.open} onOpenChange={o => setUserAction({ ...userAction, open: o })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{userAction.type === 'view' ? 'View User' : userAction.type === 'edit' ? 'Edit User' : 'Delete User'}</DialogTitle>
+          </DialogHeader>
+          {userAction.type === 'view' && userAction.user && (
+            <div>
+              <p><b>Name:</b> {userAction.user.name}</p>
+              <p><b>Email:</b> {userAction.user.email}</p>
+              <p><b>Company:</b> {userAction.user.company}</p>
+              <p><b>Role:</b> {userAction.user.role}</p>
+              <p><b>Status:</b> {userAction.user.status}</p>
+              <p><b>Joined:</b> {userAction.user.joined}</p>
+                  </div>
+          )}
+          {userAction.type === 'edit' && userAction.user && (
+            <form className="space-y-2">
+              <Input defaultValue={userAction.user.name} />
+              <Input defaultValue={userAction.user.email} />
+              <Input defaultValue={userAction.user.company} />
+              <Input defaultValue={userAction.user.role} />
+              <DialogFooter>
+                <Button type="submit">Save</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Project Modal */}
+      <Dialog open={addProjectOpen} onOpenChange={setAddProjectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Project</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4">
+            <Input placeholder="Project Name" required />
+            <Input placeholder="Client" required />
+            <Input placeholder="Deadline" type="date" />
+            <Input placeholder="Budget" />
+            <DialogFooter>
+              <Button type="submit">Add Project</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Project Action Modal */}
+      <Dialog open={projectAction.open} onOpenChange={o => setProjectAction({ ...projectAction, open: o })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{projectAction.type === 'view' ? 'Project Details' : 'Edit Project'}</DialogTitle>
+          </DialogHeader>
+          {projectAction.type === 'view' && projectAction.project && (
+            <div>
+              <p><b>Name:</b> {projectAction.project.name}</p>
+              <p><b>Client:</b> {projectAction.project.client}</p>
+              <p><b>Status:</b> {projectAction.project.status}</p>
+              <p><b>Deadline:</b> {projectAction.project.deadline}</p>
+              <p><b>Budget:</b> {projectAction.project.budget}</p>
+              <p><b>Team:</b> {projectAction.project.team.join(', ')}</p>
+                    </div>
+          )}
+          {projectAction.type === 'edit' && projectAction.project && (
+            <form className="space-y-2">
+              <Input defaultValue={projectAction.project.name} />
+              <Input defaultValue={projectAction.project.client} />
+              <Input defaultValue={projectAction.project.deadline} type="date" />
+              <Input defaultValue={projectAction.project.budget} />
+              <DialogFooter>
+                <Button type="submit">Save</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Filter Modal */}
+      <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Filter Requests</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4">
+            <Input placeholder="Client Name" />
+            <Input placeholder="Status" />
+            <DialogFooter>
+              <Button type="submit">Apply Filter</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request Action Modal */}
+      <Dialog open={requestAction.open} onOpenChange={o => setRequestAction({ ...requestAction, open: o })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{requestAction.type === 'view' ? 'Request Details' : requestAction.type === 'edit' ? 'Edit Request' : 'Approve Request'}</DialogTitle>
+          </DialogHeader>
+          {requestAction.type === 'view' && requestAction.request && (
+            <div>
+              <p><b>Title:</b> {requestAction.request.title}</p>
+              <p><b>Client:</b> {requestAction.request.client}</p>
+              <p><b>Status:</b> {requestAction.request.status}</p>
+              <p><b>Priority:</b> {requestAction.request.priority}</p>
+              <p><b>Date:</b> {requestAction.request.date}</p>
+                    </div>
+          )}
+          {requestAction.type === 'edit' && requestAction.request && (
+            <form className="space-y-2">
+              <Input defaultValue={requestAction.request.title} />
+              <Input defaultValue={requestAction.request.client} />
+              <Input defaultValue={requestAction.request.status} />
+              <Input defaultValue={requestAction.request.priority} />
+              <DialogFooter>
+                <Button type="submit">Save</Button>
+              </DialogFooter>
+            </form>
+          )}
+          {requestAction.type === 'approve' && requestAction.request && (
+            <div>
+              <p>Approve request <b>{requestAction.request.title}</b> from <b>{requestAction.request.client}</b>?</p>
+              <DialogFooter>
+                <Button variant="default">Approve</Button>
+              </DialogFooter>
+                    </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Messages Modal */}
+      <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>All Messages</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="p-2 bg-muted/50 rounded">User: "Can I get an update on my project?"</div>
+            <div className="p-2 bg-muted/50 rounded self-end">Admin: "Your project is on track for delivery."</div>
+                  </div>
+          <form className="flex gap-2 mt-2">
+            <Input placeholder="Type your response..." />
+            <Button type="submit">Send</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Post Modal */}
+      <Dialog open={addPostOpen} onOpenChange={setAddPostOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Post</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4">
+            <Input placeholder="Title" required />
+            <Input placeholder="Author" />
+            <Input placeholder="Category" />
+            <Textarea placeholder="Content" />
+            <DialogFooter>
+              <Button type="submit">Add Post</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Blog Action Modal */}
+      <Dialog open={blogAction.open} onOpenChange={o => setBlogAction({ ...blogAction, open: o })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{blogAction.type === 'view' ? 'View Post' : blogAction.type === 'edit' ? 'Edit Post' : 'Delete Post'}</DialogTitle>
+          </DialogHeader>
+          {blogAction.type === 'view' && blogAction.post && (
+            <div>
+              <p><b>Title:</b> {blogAction.post.title}</p>
+              <p><b>Author:</b> {blogAction.post.author}</p>
+              <p><b>Category:</b> {blogAction.post.category}</p>
+              <p><b>Status:</b> {blogAction.post.status}</p>
+              <p><b>Date:</b> {blogAction.post.date}</p>
+              <p><b>Views:</b> {blogAction.post.views}</p>
+                    </div>
+          )}
+          {blogAction.type === 'edit' && blogAction.post && (
+            <form className="space-y-2">
+              <Input defaultValue={blogAction.post.title} />
+              <Input defaultValue={blogAction.post.author} />
+              <Input defaultValue={blogAction.post.category} />
+              <Textarea defaultValue={blogAction.post.content} />
+              <DialogFooter>
+                <Button type="submit">Save</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin Profile Modal */}
+      <Dialog open={adminProfileOpen} onOpenChange={setAdminProfileOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Admin Profile</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4">
+            <Avatar className="w-20 h-20 cursor-pointer" onClick={() => document.getElementById('admin-profile-pic-input').click()}>
+              <AvatarImage src={adminProfilePic} />
+              <AvatarFallback>AD</AvatarFallback>
+            </Avatar>
+            <input id="admin-profile-pic-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+              const file = e.target.files && e.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = ev => setAdminProfilePic(ev.target.result as string);
+                reader.readAsDataURL(file);
+              }
+            }} />
+            <div className="text-center">
+              <h3 className="text-xl font-semibold">{adminProfileData.name}</h3>
+              <p className="text-muted-foreground">{adminProfileData.email}</p>
+              <p className="text-sm text-muted-foreground">{adminProfileData.role}</p>
+                    </div>
+            <Button onClick={() => setAdminProfileEdit(true)}>Edit Profile</Button>
+                  </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin Profile Edit Modal */}
+      <Dialog open={adminProfileEdit} onOpenChange={setAdminProfileEdit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Admin Profile</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); setAdminProfileEdit(false); }}>
+            <div className="flex flex-col items-center gap-2">
+              <Avatar className="w-20 h-20 cursor-pointer" onClick={() => document.getElementById('admin-profile-edit-pic-input').click()}>
+                <AvatarImage src={adminProfilePic} />
+                <AvatarFallback>AD</AvatarFallback>
+              </Avatar>
+              <input id="admin-profile-edit-pic-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = ev => setAdminProfilePic(ev.target.result as string);
+                  reader.readAsDataURL(file);
+                }
+              }} />
+            </div>
+            <Input value={adminProfileData.name} onChange={e => setAdminProfileData({ ...adminProfileData, name: e.target.value })} placeholder="Name" required />
+            <Input value={adminProfileData.email} onChange={e => setAdminProfileData({ ...adminProfileData, email: e.target.value })} placeholder="Email" type="email" required />
+            <Input value={adminProfileData.role} onChange={e => setAdminProfileData({ ...adminProfileData, role: e.target.value })} placeholder="Role" />
+            <DialogFooter>
+              <Button type="submit">Save Changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
@@ -36,10 +36,62 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { UserContext } from "@/App";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editProfileData, setEditProfileData] = useState({
+    name: "John Doe",
+    email: "john@example.com",
+    phone: "+1 (555) 123-4567",
+    company: "Tech Innovations Inc.",
+    industry: "Technology",
+    role: "CEO"
+  });
+  const [messagesOpen, setMessagesOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    { from: "dev", text: "Hello! How can we help you today?" }
+  ]);
+  const [newMessage, setNewMessage] = useState("");
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [newRequest, setNewRequest] = useState({
+    title: "",
+    description: "",
+    priority: "Medium"
+  });
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsType, setDetailsType] = useState(null); // 'project' or 'request'
+  const [detailsData, setDetailsData] = useState(null);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedback, setFeedback] = useState({ rating: 5, text: "" });
+  const [reviews, setReviews] = useState([
+    { project: "E-commerce Platform", rating: 5, testimonial: "Excellent work, very professional!" },
+    { project: "Mobile App", rating: 4, testimonial: "Great communication and delivery." },
+    { project: "Website Redesign", rating: 5, testimonial: "Loved the new design!" }
+  ]);
+  const { user, setUser } = useContext(UserContext);
+  const [profilePic, setProfilePic] = useState(user?.profilePic || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face");
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: '',
+    status: 'Planning',
+    progress: 0,
+    deadline: '',
+    budget: '',
+    spent: ''
+  });
+
+  // When profilePic changes, update context
+  useEffect(() => {
+    setUser(prev => prev ? { ...prev, profilePic } : prev);
+  }, [profilePic]);
 
   const handleLogout = () => {
     // Simulate logout logic
@@ -130,22 +182,20 @@ const UserDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-bold text-primary-foreground text-sm">
-                  H
-                </div>
+                <img src="https://www.hawisoftware.com/wp-content/uploads/2021/08/logohawi.png" alt="Hawi Software Logo" className="w-8 h-8 object-contain" />
                 <span className="font-bold text-lg">Hawi Software</span>
               </Link>
               <Badge variant="secondary">User Dashboard</Badge>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative" onClick={() => setNotificationOpen(true)}>
                 <Bell className="h-5 w-5" />
                 <Badge className="absolute -top-1 -right-1 w-4 h-4 rounded-full p-0 flex items-center justify-center text-xs">
-                  3
+                  {notifications.length}
                 </Badge>
               </Button>
               <Avatar>
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" />
+                <AvatarImage src={user?.profilePic || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"} />
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
               <AlertDialog>
@@ -175,7 +225,7 @@ const UserDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, John!</h1>
+          <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.email || "User"}!</h1>
           <p className="text-muted-foreground">Here's what's happening with your projects today.</p>
         </div>
 
@@ -185,7 +235,7 @@ const UserDashboard = () => {
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="requests">Requests</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback & Reviews</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
@@ -298,7 +348,7 @@ const UserDashboard = () => {
           <TabsContent value="projects" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">My Projects</h2>
-              <Button className="hero-glow">
+              <Button className="hero-glow" onClick={() => setNewProjectOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
               </Button>
@@ -315,7 +365,7 @@ const UserDashboard = () => {
                           {project.status}
                         </Badge>
                       </div>
-                      <Button variant="outline" size="sm">View Details</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setDetailsType('project'); setDetailsData(project); setDetailsOpen(true); }}>View Details</Button>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -345,7 +395,7 @@ const UserDashboard = () => {
           <TabsContent value="requests" className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Service Requests</h2>
-              <Button className="hero-glow">
+              <Button className="hero-glow" onClick={() => setRequestOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Request
               </Button>
@@ -366,7 +416,7 @@ const UserDashboard = () => {
                           <span className="text-sm text-muted-foreground">Created: {request.date}</span>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">View Details</Button>
+                      <Button variant="outline" size="sm" onClick={() => { setDetailsType('request'); setDetailsData(request); setDetailsOpen(true); }}>View Details</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -385,93 +435,36 @@ const UserDashboard = () => {
                   <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-lg font-medium mb-2">No recent messages</p>
                   <p className="text-muted-foreground mb-4">Your message history with the development team will appear here.</p>
-                  <Button className="hero-glow">Start a Conversation</Button>
+                  <Button className="hero-glow" onClick={() => setMessagesOpen(true)}>Start a Conversation</Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <h2 className="text-2xl font-bold">Project Analytics</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="glass-card">
+          {/* Feedback & Reviews Tab */}
+          <TabsContent value="feedback" className="space-y-6">
+            <Card className="glass-card animate-fade-in">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Budget Overview
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  Feedback & Reviews
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Total Budget</span>
-                      <span className="font-semibold">$28,000</span>
+              <CardContent className="space-y-4">
+                <Button className="hero-glow" onClick={() => setFeedbackOpen(true)}>Provide Feedback</Button>
+                <div className="space-y-2">
+                  {reviews.map((review, idx) => (
+                    <div key={idx} className="p-3 rounded-lg bg-muted/50">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold">{review.project}</span>
+                        <span className="text-yellow-500">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Spent</span>
-                      <span className="font-semibold">$19,700</span>
+                      <p className="text-sm text-muted-foreground">{review.testimonial}</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Remaining</span>
-                      <span className="font-semibold text-green-600">$8,300</span>
-                    </div>
-                    <Progress value={70} />
+                  ))}
                   </div>
                 </CardContent>
               </Card>
-
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Time Tracking
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Total Hours</span>
-                      <span className="font-semibold">287</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">This Month</span>
-                      <span className="font-semibold">64</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Avg. per Project</span>
-                      <span className="font-semibold">95.7</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-sm">On-time Delivery</span>
-                      <span className="font-semibold">92%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Budget Adherence</span>
-                      <span className="font-semibold">88%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Satisfaction</span>
-                      <span className="font-semibold">4.9/5</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           {/* Profile Tab */}
@@ -485,10 +478,18 @@ const UserDashboard = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-6">
-                  <Avatar className="w-20 h-20">
-                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" />
+                  <Avatar className="w-20 h-20 cursor-pointer" onClick={() => document.getElementById('profile-pic-input').click()}>
+                    <AvatarImage src={profilePic} />
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
+                  <input id="profile-pic-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = ev => setProfilePic(ev.target.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }} />
                   <div>
                     <h3 className="text-xl font-semibold">John Doe</h3>
                     <p className="text-muted-foreground">john@example.com</p>
@@ -535,17 +536,296 @@ const UserDashboard = () => {
                 </div>
 
                 <div className="flex gap-4">
-                  <Button className="hero-glow">
+                  <Button className="hero-glow" onClick={() => setEditProfileOpen(true)}>
                     <Settings className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
-                  <Button variant="outline">Change Password</Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Profile Modal */}
+      <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={e => {
+              e.preventDefault();
+              setEditProfileOpen(false);
+            }}
+          >
+            <div className="flex flex-col items-center gap-2">
+              <Avatar className="w-20 h-20 cursor-pointer" onClick={() => document.getElementById('edit-profile-pic-input').click()}>
+                <AvatarImage src={profilePic} />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
+              <input id="edit-profile-pic-input" type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = ev => setProfilePic(ev.target.result as string);
+                  reader.readAsDataURL(file);
+                }
+              }} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm">Full Name</label>
+                <Input
+                  value={editProfileData.name}
+                  onChange={e => setEditProfileData({ ...editProfileData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm">Email</label>
+                <Input
+                  type="email"
+                  value={editProfileData.email}
+                  onChange={e => setEditProfileData({ ...editProfileData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm">Phone</label>
+                <Input
+                  value={editProfileData.phone}
+                  onChange={e => setEditProfileData({ ...editProfileData, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm">Company</label>
+                <Input
+                  value={editProfileData.company}
+                  onChange={e => setEditProfileData({ ...editProfileData, company: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm">Industry</label>
+                <Input
+                  value={editProfileData.industry}
+                  onChange={e => setEditProfileData({ ...editProfileData, industry: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm">Role</label>
+                <Input
+                  value={editProfileData.role}
+                  onChange={e => setEditProfileData({ ...editProfileData, role: e.target.value })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save Changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Messages Modal */}
+      <Dialog open={messagesOpen} onOpenChange={setMessagesOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start a Conversation</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 max-h-60 overflow-y-auto mb-2">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`p-2 rounded-lg ${msg.from === "user" ? "bg-primary/10 self-end" : "bg-muted/50 self-start"}`}>{msg.text}</div>
+            ))}
+          </div>
+          <form
+            className="flex gap-2"
+            onSubmit={e => {
+              e.preventDefault();
+              if (newMessage.trim()) {
+                setMessages([...messages, { from: "user", text: newMessage }]);
+                setNewMessage("");
+              }
+            }}
+          >
+            <Input
+              value={newMessage}
+              onChange={e => setNewMessage(e.target.value)}
+              placeholder="Type your message..."
+            />
+            <Button type="submit">Send</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Request Modal */}
+      <Dialog open={requestOpen} onOpenChange={setRequestOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Service Request</DialogTitle>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={e => {
+              e.preventDefault();
+              setRequestOpen(false);
+            }}
+          >
+            <div>
+              <label className="text-sm">Title</label>
+              <Input
+                value={newRequest.title}
+                onChange={e => setNewRequest({ ...newRequest, title: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="text-sm">Description</label>
+              <Textarea
+                value={newRequest.description}
+                onChange={e => setNewRequest({ ...newRequest, description: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className="text-sm">Priority</label>
+              <select
+                className="w-full border rounded-md p-2"
+                value={newRequest.priority}
+                onChange={e => setNewRequest({ ...newRequest, priority: e.target.value })}
+              >
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Submit Request</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Modal */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{detailsType === 'project' ? 'Project Details' : 'Request Details'}</DialogTitle>
+          </DialogHeader>
+          {detailsData && (
+            <div className="space-y-2">
+              {detailsType === 'project' ? (
+                <>
+                  <div><b>Name:</b> {detailsData.name}</div>
+                  <div><b>Status:</b> {detailsData.status}</div>
+                  <div><b>Progress:</b> {detailsData.progress}%</div>
+                  <div><b>Deadline:</b> {detailsData.deadline}</div>
+                  <div><b>Budget:</b> {detailsData.budget}</div>
+                  <div><b>Spent:</b> {detailsData.spent}</div>
+                </>
+              ) : (
+                <>
+                  <div><b>Title:</b> {detailsData.title}</div>
+                  <div><b>Status:</b> {detailsData.status}</div>
+                  <div><b>Date:</b> {detailsData.date}</div>
+                  <div><b>Priority:</b> {detailsData.priority}</div>
+                </>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Modal */}
+      <Dialog open={notificationOpen} onOpenChange={setNotificationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Notifications</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <p className="text-muted-foreground">No notifications.</p>
+            ) : notifications.map((notification) => (
+              <div key={notification.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                <div className={`w-2 h-2 rounded-full mt-2 ${
+                  notification.type === "success" ? "bg-green-500" :
+                  notification.type === "warning" ? "bg-yellow-500" : "bg-blue-500"
+                }`} />
+                <div className="flex-1">
+                  <p className="text-sm">{notification.message}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Feedback Modal */}
+      <Dialog open={feedbackOpen} onOpenChange={setFeedbackOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Provide Feedback</DialogTitle>
+          </DialogHeader>
+          <form
+            className="space-y-4"
+            onSubmit={e => {
+              e.preventDefault();
+              setReviews([{ project: "Your Feedback", rating: feedback.rating, testimonial: feedback.text }, ...reviews]);
+              setFeedback({ rating: 5, text: "" });
+              setFeedbackOpen(false);
+            }}
+          >
+            <div>
+              <label className="text-sm">Rating</label>
+              <div className="flex gap-1 mt-1">
+                {[1,2,3,4,5].map(star => (
+                  <button
+                    type="button"
+                    key={star}
+                    className={star <= feedback.rating ? "text-yellow-500" : "text-gray-300"}
+                    onClick={() => setFeedback(f => ({ ...f, rating: star }))}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm">Feedback</label>
+              <Textarea
+                value={feedback.text}
+                onChange={e => setFeedback(f => ({ ...f, text: e.target.value }))}
+                required
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">Submit</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Project Modal */}
+      <Dialog open={newProjectOpen} onOpenChange={setNewProjectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Project</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); setNewProjectOpen(false); }}>
+            <Input placeholder="Project Name" value={newProject.name} onChange={e => setNewProject({ ...newProject, name: e.target.value })} required />
+            <Input placeholder="Status" value={newProject.status} onChange={e => setNewProject({ ...newProject, status: e.target.value })} />
+            <Input placeholder="Progress" type="number" value={newProject.progress} onChange={e => setNewProject({ ...newProject, progress: Number(e.target.value) })} />
+            <Input placeholder="Deadline" type="date" value={newProject.deadline} onChange={e => setNewProject({ ...newProject, deadline: e.target.value })} />
+            <Input placeholder="Budget" value={newProject.budget} onChange={e => setNewProject({ ...newProject, budget: e.target.value })} />
+            <Input placeholder="Spent" value={newProject.spent} onChange={e => setNewProject({ ...newProject, spent: e.target.value })} />
+            <DialogFooter>
+              <Button type="submit">Add Project</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

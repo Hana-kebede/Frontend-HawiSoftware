@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Palette, 
   Code2, 
@@ -13,9 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ServiceModal from "./ServiceModal";
 
-const Services = () => {
+const Services = ({ id }: { id?: string }) => {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleLearnMore = (service: any) => {
     setSelectedService(service);
@@ -79,10 +81,52 @@ const Services = () => {
       bgColor: "bg-purple-500/10",
       popular: false
     },
+    {
+      icon: Settings,
+      title: "Software Consultancy",
+      description: "Expert advice and guidance to help you make the right technology decisions for your business.",
+      detailedDescription: "Our software consultancy service provides strategic guidance, technology assessments, and solution recommendations to ensure your business leverages the best software practices and tools for growth.",
+      features: ["Technology Assessment", "Solution Architecture", "Process Optimization", "Digital Transformation", "Vendor Selection", "IT Strategy"],
+      benefits: ["Informed Decision Making", "Reduced Risk", "Optimized IT Spend", "Faster Time to Market", "Future-Proof Solutions", "Expert Guidance"],
+      price: "Contact for Quote",
+      duration: "Flexible",
+      technologies: ["All Major Platforms"],
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/10",
+      popular: false
+    },
+    {
+      icon: Code2,
+      title: "Ecommerce",
+      description: "End-to-end ecommerce solutions to help you sell online and grow your business.",
+      detailedDescription: "We build robust, scalable ecommerce platforms tailored to your business needs, including storefront design, payment integration, inventory management, and analytics.",
+      features: ["Custom Storefronts", "Payment Integration", "Inventory Management", "Order Processing", "Analytics & Reporting", "Mobile Commerce"],
+      benefits: ["Increased Sales", "Seamless Shopping Experience", "Secure Transactions", "Easy Management", "Scalable Growth", "Mobile Ready"],
+      price: "Starting at $3,000",
+      duration: "4-8 weeks",
+      technologies: ["Shopify", "WooCommerce", "Magento", "React", "Node.js"],
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
+      popular: false
+    },
+    {
+      icon: Star,
+      title: "Quality assurance and testing",
+      description: "Comprehensive QA and testing services to ensure your software is reliable and bug-free.",
+      detailedDescription: "Our QA and testing services cover manual and automated testing, performance analysis, and security audits to deliver high-quality, reliable software.",
+      features: ["Manual Testing", "Automated Testing", "Performance Testing", "Security Audits", "Bug Tracking", "Continuous Integration"],
+      benefits: ["Fewer Bugs", "Improved Reliability", "Better User Experience", "Faster Releases", "Reduced Costs", "Peace of Mind"],
+      price: "Contact for Quote",
+      duration: "Flexible",
+      technologies: ["Selenium", "Jest", "Cypress", "Postman", "JMeter"],
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+      popular: false
+    },
   ];
 
   return (
-    <section id="services" className="py-20 relative overflow-hidden">
+    <section id={id} className="py-20 relative overflow-hidden mt-24">
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 -left-10 w-80 h-80 bg-primary/5 morphing-blob"></div>
@@ -109,6 +153,16 @@ const Services = () => {
           {services.map((service, index) => (
             <Card 
               key={index} 
+              id={
+                service.title === 'Brand Identity Development' ? 'brand-identity' :
+                service.title === 'Web Design & Development' ? 'web-development' :
+                service.title === 'Custom Software Development' ? 'software-development' :
+                service.title === 'Mobile Application Development' ? 'mobile-development' :
+                service.title === 'Software Consultancy' ? 'software-consultancy' :
+                service.title === 'Ecommerce' ? 'ecommerce' :
+                service.title === 'Quality assurance and testing' ? 'quality-assurance' :
+                undefined
+              }
               className={`glass-card border-border/50 hover:border-primary/30 group glow-on-hover animate-slide-in-up relative overflow-hidden ${
                 service.popular ? 'ring-2 ring-primary/30' : ''
               }`}

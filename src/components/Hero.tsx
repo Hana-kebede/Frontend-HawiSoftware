@@ -1,10 +1,13 @@
 import { ArrowRight, Sparkles, Play, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-bg.jpg";
+import { useNavigate } from "react-router-dom";
 
-const Hero = () => {
+const Hero = ({ id }: { id?: string }) => {
+  const navigate = useNavigate();
+
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id={id} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 mt-24 pb-40">
       {/* Animated background blobs */}
       <div className="absolute inset-0">
         <div className="absolute top-20 -left-20 w-72 h-72 bg-primary/10 morphing-blob"></div>
@@ -25,10 +28,10 @@ const Hero = () => {
       <div className="absolute top-20 left-10 w-20 h-20 bg-primary/20 rounded-full blur-xl animate-float" />
       <div className="absolute bottom-20 right-10 w-32 h-32 bg-accent/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
       
-      <div className="relative z-10 container mx-auto px-4 text-center pt-20">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-20 mt-0 mb-24">
         <div className="max-w-5xl mx-auto animate-fade-in-up">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-card mb-8 border border-primary/20">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass-card mb-8 border border-primary/20 -mt-8">
             <Sparkles className="w-5 h-5 text-primary animate-pulse" />
             <span className="text-sm font-medium text-primary">Leading Software Solutions in Ethiopia</span>
           </div>
@@ -44,17 +47,14 @@ const Hero = () => {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Hawi Software Solutions (HSS) is an emerging software firm located in Adama, Ethiopia, 
-            producing quality software for clients and steering customers through the next generation 
-            of business innovation powered by technology.
-          </p>
+          
           
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
             <Button 
               size="lg" 
               className="group hero-glow glow-on-hover px-10 py-6 text-lg relative overflow-hidden"
+              onClick={() => navigate('/login')}
             >
               <span className="relative z-10">Start Your Project</span>
               <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform relative z-10" />
@@ -64,9 +64,10 @@ const Hero = () => {
               variant="outline" 
               size="lg" 
               className="px-10 py-6 text-lg glass-card border-border/50 hover:border-primary/50 group"
+              onClick={() => navigate('/contact')}
             >
               <Play className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
-              Watch Demo
+              Schedule Consultation
             </Button>
           </div>
           

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const blogPosts = [
   {
@@ -86,14 +87,14 @@ const blogPosts = [
 const categories = ["All", "Web Development", "Mobile Development", "Software Architecture", "Design", "DevOps", "Security"];
 
 const Blog = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [readMoreOpen, setReadMoreOpen] = useState(false);
+  const [readMorePost, setReadMorePost] = useState(null);
+  const [articlesToShow, setArticlesToShow] = useState(4);
 
   const filteredPosts = blogPosts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || post.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesCategory;
   });
 
   return (
@@ -101,7 +102,7 @@ const Blog = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-primary/5 to-secondary/5">
+      <section className="pt-24 pb-16 bg-gradient-to-br from-primary/5 to-secondary/5 mt-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 gradient-text">
@@ -113,15 +114,6 @@ const Blog = () => {
             
             {/* Search and Filter */}
             <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search articles..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
               <div className="flex gap-2 flex-wrap justify-center">
                 {categories.map((category) => (
                   <Button
@@ -170,7 +162,7 @@ const Blog = () => {
                     <Clock className="h-4 w-4 ml-2" />
                     <span className="text-sm">{blogPosts[0].readTime}</span>
                   </div>
-                  <Button className="group">
+                  <Button className="group" onClick={() => { setReadMorePost(blogPosts[0]); setReadMoreOpen(true); }}>
                     Read More
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
@@ -192,7 +184,7 @@ const Blog = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.slice(1).map((post, index) => (
+              {filteredPosts.slice(1, articlesToShow+1).map((post, index) => (
                 <Card key={post.id} className="glass-card hover-scale animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                   <CardHeader className="p-0">
                     <img
@@ -227,7 +219,7 @@ const Blog = () => {
                         <Clock className="h-4 w-4 ml-2" />
                         <span>{post.readTime}</span>
                       </div>
-                      <Button variant="ghost" size="sm" className="group">
+                      <Button variant="ghost" size="sm" className="group" onClick={() => { setReadMorePost(post); setReadMoreOpen(true); }}>
                         Read More
                         <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -240,7 +232,7 @@ const Blog = () => {
 
           {/* Load More Button */}
           <div className="text-center mt-12">
-            <Button variant="outline" size="lg" className="hover-scale">
+            <Button variant="outline" size="lg" className="hover-scale" onClick={() => setArticlesToShow(articlesToShow + 3)}>
               Load More Articles
             </Button>
           </div>
@@ -248,6 +240,16 @@ const Blog = () => {
       </section>
 
       <Footer />
+
+      {/* Read More Modal */}
+      <Dialog open={readMoreOpen} onOpenChange={setReadMoreOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{readMorePost?.title}</DialogTitle>
+          </DialogHeader>
+          <p>{readMorePost?.content}</p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

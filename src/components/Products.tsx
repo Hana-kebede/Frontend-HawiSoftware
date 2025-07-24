@@ -2,6 +2,7 @@ import { ExternalLink, Github, Zap, Star, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const products = [
@@ -56,6 +57,8 @@ const Products = () => {
       default: return "bg-muted/10 text-muted-foreground border-border/20";
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <section id="products" className="py-20 relative overflow-hidden">
@@ -131,24 +134,6 @@ const Products = () => {
                   ))}
                 </div>
                 
-                <div className="flex gap-3">
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    className="hero-glow flex-1 group"
-                    disabled={product.status === "Coming Soon" || product.status === "Development"}
-                  >
-                    {product.status === "Live" ? "Try Demo" : "Learn More"}
-                    <ExternalLink className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="glass-card border-border/50"
-                  >
-                    <Github className="w-4 h-4" />
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           ))}
@@ -164,7 +149,7 @@ const Products = () => {
               <p className="text-muted-foreground mb-6 text-lg">
                 We can help you build custom software solutions tailored to your specific needs.
               </p>
-              <Button size="lg" className="hero-glow">
+              <Button size="lg" className="hero-glow" onClick={() => navigate('/login')}>
                 Discuss Your Idea
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

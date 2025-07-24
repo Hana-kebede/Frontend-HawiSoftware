@@ -1,6 +1,7 @@
 import { X, Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface ServiceModalProps {
   service: {
@@ -18,6 +19,7 @@ interface ServiceModalProps {
 }
 
 const ServiceModal = ({ service, isOpen, onClose }: ServiceModalProps) => {
+  const navigate = useNavigate();
   if (!isOpen || !service) return null;
 
   return (
@@ -89,26 +91,10 @@ const ServiceModal = ({ service, isOpen, onClose }: ServiceModalProps) => {
             </div>
           </div>
 
-          {/* Pricing & Timeline */}
-          <div className="grid md:grid-cols-2 gap-6 p-6 glass-card rounded-xl border-border/50 bg-gradient-to-r from-primary/5 to-accent/5">
-            <div>
-              <h4 className="font-semibold text-lg mb-2">Starting Price</h4>
-              <p className="text-2xl font-bold text-primary">{service.price}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-lg mb-2">Timeline</h4>
-              <p className="text-2xl font-bold text-accent">{service.duration}</p>
-            </div>
-          </div>
-
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button size="lg" className="hero-glow flex-1">
-              Get Started Now
-            </Button>
-            <Button variant="outline" size="lg" className="flex-1">
-              Request Quote
-            </Button>
+          <div className="flex gap-4 mt-8 justify-end">
+            <button className="btn btn-primary" onClick={() => navigate('/login')}>Get Started Now</button>
+            <button className="btn btn-outline" onClick={() => navigate('/signup')}>Request Quote</button>
           </div>
         </div>
       </div>
